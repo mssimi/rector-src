@@ -195,13 +195,9 @@ CODE_SAMPLE
         $phpDocNodeTraverser = new PhpDocNodeTraverser();
         $this->annotationToAttributePhpDocNodeVisitor->configureAnnotationsToAttributes($this->annotationsToAttributes);
         $phpDocNodeTraverser->addPhpDocNodeVisitor($this->annotationToAttributePhpDocNodeVisitor);
-
         $phpDocNodeTraverser->traverse($phpDocInfo->getPhpDocNode());
 
         $doctrineTagAndAnnotationToAttributes = $this->annotationToAttributePhpDocNodeVisitor->provideFound();
-
-//        dump($phpDocInfo->getPhpDocNode()->children[0]->value->values);
-//        die;
 
         foreach ($doctrineTagAndAnnotationToAttributes as $doctrineTagAndAnnotationToAttribute) {
             $doctrineAnnotationTagValueNode = $doctrineTagAndAnnotationToAttribute->getDoctrineAnnotationTagValueNode();

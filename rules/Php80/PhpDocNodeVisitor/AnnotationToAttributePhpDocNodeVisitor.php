@@ -67,9 +67,6 @@ final class AnnotationToAttributePhpDocNodeVisitor extends AbstractPhpDocNodeVis
                 $annotationsToAttribute
             );
 
-            // to invoke re-print
-            //$node->setAttribute(PhpDocAttributeKey::ORIG_NODE, null);
-
             // remove the original doctrine annotation, it becomes an attribute
             return PhpDocNodeTraverser::NODE_REMOVE;
         }
