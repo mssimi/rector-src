@@ -23,26 +23,30 @@ abstract class AbstractValuesAwareNode implements PhpDocTagValueNode
     protected bool $hasChanged = false;
 
     /**
-     * @param mixed[] $values
+     * @param mixed[] $values Must be public so node traverser can go through them
      */
     public function __construct(
-        protected array $values = [],
+        public array $values = [],
         protected ?string $originalContent = null,
         protected ?string $silentKey = null
     ) {
     }
 
-    public function removeValue(string $key): void
+    public function removeValue(string | int $key): void
     {
-        $quotedKey = '"' . $key . '"';
-
-        // isset?
-        if (! isset($this->values[$key]) && ! isset($this->values[$quotedKey])) {
-            return;
+        $quotedKey = null;
+        if (is_string($key)) {
+            $quotedKey = '"' . $key . '"';
         }
 
-        unset($this->values[$key]);
-        unset($this->values[$quotedKey]);
+        // isset?
+        if (isset($this->values[$key])) {
+            unset($this->values[$key]);
+        } elseif ($quotedKey !== null && isset($this->values[$quotedKey])) {
+            unset($this->values[$quotedKey]);
+        } else {
+            return;
+        }
 
         // invoke reprint
         $this->setAttribute(PhpDocAttributeKey::ORIG_NODE, null);
@@ -72,13 +76,17 @@ abstract class AbstractValuesAwareNode implements PhpDocTagValueNode
     /**
      * @param mixed $value
      */
-    public function changeValue(string $key, $value): void
+    public function changeValue(string | int $key, $value): void
     {
         // is quoted?
         if (isset($this->values[$key])) {
-            $isQuoted = (bool) Strings::match($this->values[$key], self::UNQUOTED_VALUE_REGEX);
-            if ($isQuoted) {
-                $value = '"' . $value . '"';
+            $value = $this->values[$key];
+
+            if (is_string($value)) {
+                $isQuoted = (bool) Strings::match($value, self::UNQUOTED_VALUE_REGEX);
+                if ($isQuoted) {
+                    $value = '"' . $value . '"';
+                }
             }
         }
 
@@ -156,6 +164,11 @@ abstract class AbstractValuesAwareNode implements PhpDocTagValueNode
     public function markAsChanged(): void
     {
         $this->hasChanged = true;
+    }
+
+    public function hasChanged(): bool
+    {
+        return $this->hasChanged;
     }
 
     /**
