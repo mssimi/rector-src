@@ -84,10 +84,11 @@ final class FileCacheStorage
         $cacheFilePaths = $this->getCacheFilePaths($cacheKey);
 
         $this->smartFileSystem->remove([
-            $cacheFilePaths->getFirstDirectory(),
-            $cacheFilePaths->getSecondDirectory(),
             $cacheFilePaths->getFilePath(),
         ]);
+        // remove dirs only if empty to prevent over aggressive delete
+        @rmdir($cacheFilePaths->getSecondDirectory());
+        @rmdir($cacheFilePaths->getFirstDirectory());
     }
 
     public function clear(): void
